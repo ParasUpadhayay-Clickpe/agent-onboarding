@@ -6,6 +6,7 @@ import { VerificationService } from '../services/verificationService';
 interface EmailOTPProps {
     email: string;
     password: string;
+    userName?: string; // Add userName prop
     onEmailChange: (email: string) => void;
     onPasswordChange: (password: string) => void;
     onVerificationComplete: () => void;
@@ -15,6 +16,7 @@ interface EmailOTPProps {
 export default function EmailOTP({
     email,
     password,
+    userName = 'User',
     onEmailChange,
     onPasswordChange,
     onVerificationComplete,
@@ -31,7 +33,7 @@ export default function EmailOTP({
 
         setEmailOtpLoading(true);
         try {
-            const result = await VerificationService.sendEmailOTP(email);
+            const result = await VerificationService.sendEmailOTP(email, userName);
             if (result.success) {
                 setEmailOtpSent(true);
             }

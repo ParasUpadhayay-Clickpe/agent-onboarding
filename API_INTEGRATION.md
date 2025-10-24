@@ -2,7 +2,57 @@
 
 ## 🔗 API Endpoints
 
-### 1. Create Agent
+### 1. Send Email OTP
+**Endpoint:** `https://notification-{stage}.dailype.in/send_email_notifications`
+**Method:** POST
+**Content-Type:** application/json
+
+**Request Body:**
+```json
+{
+  "notification_channel": "email_notification",
+  "notification_template_id": "email_verification",
+  "user_data": {
+    "name": "John Doe",
+    "user_id": "12345"
+  },
+  "recipients": [
+    "john@example.com"
+  ],
+  "verification_type": "normal"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "OTP sent successfully"
+}
+```
+
+### 2. Verify Email OTP
+**Endpoint:** `https://notification-{stage}.dailype.in/verify_email_otp`
+**Method:** POST
+**Content-Type:** application/json
+
+**Request Body:**
+```json
+{
+  "email": "john@example.com",
+  "otp": "862233"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Email verified successfully"
+}
+```
+
+### 3. Create Agent
 **Endpoint:** `https://los-{stage}.dailype.in/create_agent`
 **Method:** POST
 **Content-Type:** application/json
@@ -47,7 +97,7 @@
 }
 ```
 
-### 2. Update Agent Password
+### 4. Update Agent Password
 **Endpoint:** `https://notification-{stage}.dailype.in/agent_update_password`
 **Method:** POST
 **Content-Type:** application/json
@@ -101,22 +151,30 @@ STAGE=dev
 
 ## 🔄 API Integration Flow
 
-1. **Form Submission:**
+1. **Email Verification:**
+   - User enters email and password
+   - API call to `notification-{stage}.dailype.in/send_email_notifications`
+   - User receives OTP via email
+   - User enters OTP
+   - API call to `notification-{stage}.dailype.in/verify_email_otp`
+   - Email verification completed
+
+2. **Form Submission:**
    - User fills out the multi-step form
    - Form data is validated at each step
    - On final submission, agent creation API is called
 
-2. **Agent Creation:**
+3. **Agent Creation:**
    - API call to `los-{stage}.dailype.in/create_agent`
    - Returns `agent_id` on success
 
-3. **Password Update:**
+4. **Password Update:**
    - Immediately after successful agent creation
    - API call to `notification-{stage}.dailype.in/agent_update_password`
-   - Uses the returned `agent_id` from step 2
+   - Uses the returned `agent_id` from step 3
 
-4. **Success Handling:**
-   - Both operations must succeed
+5. **Success Handling:**
+   - All operations must succeed
    - User sees success message with agent ID
    - Form resets after 3 seconds
 

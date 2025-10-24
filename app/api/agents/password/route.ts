@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateAgentPassword, UpdatePasswordRequest } from '../agents/route';
+import { updateAgentPassword, UpdatePasswordRequest } from '../route';
 
 export async function POST(request: NextRequest) {
   try {
     const body: UpdatePasswordRequest = await request.json();
-    
+
     // Validate required fields
     if (!body.email || !body.agent_id || !body.password) {
       return NextResponse.json(
@@ -12,9 +12,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     const result = await updateAgentPassword(body);
-    
+
     return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(

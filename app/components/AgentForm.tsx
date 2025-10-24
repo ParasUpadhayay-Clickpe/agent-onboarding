@@ -125,11 +125,18 @@ export default function AgentForm() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+
+    // Handle numeric fields
+    let processedValue: any = value;
+    if (name === 'home_pin_code' || name === 'office_pin_code') {
+      processedValue = value === '' ? 0 : parseInt(value, 10) || 0;
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: processedValue
     }));
 
     // Clear error for this field
@@ -189,8 +196,35 @@ export default function AgentForm() {
       // Prepare agent data for API (exclude password from create request)
       const { password, ...agentCreateData } = formData;
 
+      // Clean and validate data before sending
+      const cleanedData: any = {
+        ...agentCreateData,
+        // Ensure PIN codes are numbers, not strings
+        home_pin_code: parseInt(agentCreateData.home_pin_code.toString()) || 0,
+        office_pin_code: agentCreateData.office_pin_code ? parseInt(agentCreateData.office_pin_code.toString()) : undefined,
+        // Ensure gender is single character
+        gender: agentCreateData.gender === 'Male' ? 'M' : agentCreateData.gender === 'Female' ? 'F' : 'O',
+        // Remove empty optional fields to avoid API issues
+        mname: agentCreateData.mname || undefined,
+        home_address2: agentCreateData.home_address2 || undefined,
+        office_address1: agentCreateData.office_address1 || undefined,
+        office_address2: agentCreateData.office_address2 || undefined,
+        office_district: agentCreateData.office_district || undefined,
+        office_state: agentCreateData.office_state || undefined,
+      };
+
+      // Remove undefined fields
+      Object.keys(cleanedData).forEach(key => {
+        if (cleanedData[key] === undefined) {
+          delete cleanedData[key];
+        }
+      });
+
+
+      console.log('Cleaned agent data:', JSON.stringify(cleanedData, null, 2));
+
       // Create agent
-      const createResult = await AgentService.createAgent(agentCreateData);
+      const createResult = await AgentService.createAgent(cleanedData);
 
       if (createResult.success && createResult.agent_id) {
         // Update password after successful agent creation
@@ -258,6 +292,7 @@ export default function AgentForm() {
             <EmailOTP
               email={formData.email}
               password={formData.password}
+              userName={formData.fname && formData.lname ? `${formData.fname} ${formData.lname}` : 'User'}
               onEmailChange={(email) => handleInputChange({ target: { name: 'email', value: email } } as any)}
               onPasswordChange={(password) => handleInputChange({ target: { name: 'password', value: password } } as any)}
               onVerificationComplete={() => setEmailOtpVerified(true)}
@@ -302,6 +337,7 @@ export default function AgentForm() {
             <EmailOTP
               email={formData.email}
               password={formData.password}
+              userName={formData.fname && formData.lname ? `${formData.fname} ${formData.lname}` : 'User'}
               onEmailChange={(email) => handleInputChange({ target: { name: 'email', value: email } } as any)}
               onPasswordChange={(password) => handleInputChange({ target: { name: 'password', value: password } } as any)}
               onVerificationComplete={() => setEmailOtpVerified(true)}

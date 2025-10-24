@@ -1,9 +1,9 @@
 import { sendEmailOTP, verifyEmailOTP, verifyPAN } from '../api/agents/route';
 
 export class VerificationService {
-    static async sendEmailOTP(email: string): Promise<{ success: boolean; message: string }> {
+    static async sendEmailOTP(email: string, userName: string = 'User'): Promise<{ success: boolean; message: string }> {
         try {
-            return await sendEmailOTP(email);
+            return await sendEmailOTP(email, userName);
         } catch (error) {
             console.error('Error sending email OTP:', error);
             return {

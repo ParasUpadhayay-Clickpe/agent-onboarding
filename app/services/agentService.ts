@@ -5,6 +5,8 @@ export class AgentService {
 
   static async createAgent(agentData: CreateAgentRequest): Promise<CreateAgentResponse> {
     try {
+      console.log('Sending agent data:', JSON.stringify(agentData, null, 2));
+
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -14,7 +16,10 @@ export class AgentService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        console.error('Response Status:', response.status);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
       return await response.json();
