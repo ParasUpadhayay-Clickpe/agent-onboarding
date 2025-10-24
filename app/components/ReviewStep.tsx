@@ -132,7 +132,7 @@ export default function ReviewStep({ formData, isReferred }: ReviewStepProps) {
                         </div>
                         <div>
                             <span className="text-gray-400">Referred By:</span>
-                            <span className="text-white ml-2">{formData.referred_by || 'Self-onboard'}</span>
+                            <span className="text-white ml-2">{formData.parent_agent_id === 'self-onboard' ? 'Self-onboard' : formData.parent_agent_id}</span>
                         </div>
                     </div>
                 </div>

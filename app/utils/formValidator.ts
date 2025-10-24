@@ -1,4 +1,4 @@
-import { CreateAgentRequest } from '../api/agents/route';
+import { AgentData } from '../api/agents/route';
 
 export interface ValidationErrors {
     [key: string]: string;
@@ -49,7 +49,7 @@ export class FormValidator {
         return null;
     }
 
-    static validateStep(step: number, formData: CreateAgentRequest, isReferred: boolean): ValidationErrors {
+    static validateStep(step: number, formData: AgentData, isReferred: boolean): ValidationErrors {
         const errors: ValidationErrors = {};
 
         if (isReferred) {
@@ -93,12 +93,12 @@ export class FormValidator {
                     if (!formData.dob.trim()) errors.dob = 'Date of birth is required';
                     break;
 
-        case 3: // Address
-          if (!formData.home_address1.trim()) errors.home_address1 = 'Address is required';
-          if (!formData.home_district.trim()) errors.home_district = 'District is required';
-          if (!formData.home_state.trim()) errors.home_state = 'State is required';
-          if (!formData.home_pin_code || formData.home_pin_code === 0) errors.home_pin_code = 'PIN code is required';
-          break;
+                case 3: // Address
+                    if (!formData.home_address1.trim()) errors.home_address1 = 'Address is required';
+                    if (!formData.home_district.trim()) errors.home_district = 'District is required';
+                    if (!formData.home_state.trim()) errors.home_state = 'State is required';
+                    if (!formData.home_pin_code || formData.home_pin_code === 0) errors.home_pin_code = 'PIN code is required';
+                    break;
 
                 case 4: // Financial details
                     const panError = this.validatePAN(formData.pan);
