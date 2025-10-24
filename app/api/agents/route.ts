@@ -121,6 +121,21 @@ export const sendEmailOTP = async (email: string, userName: string = 'User'): Pr
     });
 
     if (!response.ok) {
+      // Handle 400 Bad Request - extract message from response body
+      if (response.status === 400) {
+        try {
+          const errorResult = await response.json();
+          return {
+            success: false,
+            message: errorResult.message || 'Bad Request'
+          };
+        } catch (parseError) {
+          return {
+            success: false,
+            message: 'Bad Request'
+          };
+        }
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 

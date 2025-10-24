@@ -22,6 +22,12 @@ export class FormValidator {
         return null;
     }
 
+    static validateConfirmPassword(password: string, confirmPassword: string): string | null {
+        if (!confirmPassword.trim()) return 'Please confirm your password';
+        if (password !== confirmPassword) return 'Passwords do not match';
+        return null;
+    }
+
     static validateMobile(mobile: string): string | null {
         if (!mobile.trim()) return 'Mobile number is required';
 
@@ -58,19 +64,21 @@ export class FormValidator {
                 case 1: // Email verification
                     const emailError = this.validateEmail(formData.email);
                     if (emailError) errors.email = emailError;
+                    break;
 
+                case 2: // Password creation
                     const passwordError = this.validatePassword(formData.password);
                     if (passwordError) errors.password = passwordError;
                     break;
 
-                case 2: // Personal details
+                case 3: // Personal details
                     if (!formData.fname.trim()) errors.fname = 'First name is required';
                     if (!formData.lname.trim()) errors.lname = 'Last name is required';
                     if (!formData.gender.trim()) errors.gender = 'Gender is required';
                     if (!formData.dob.trim()) errors.dob = 'Date of birth is required';
                     break;
 
-                case 3: // Agent configuration
+                case 4: // Agent configuration
                     if (!formData.fos_or_dsa.trim()) errors.fos_or_dsa = 'FOS or DSA is required';
                     if (!formData.contract_or_commission.trim()) errors.contract_or_commission = 'Contract or Commission is required';
                     break;
@@ -81,26 +89,28 @@ export class FormValidator {
                 case 1: // Email verification
                     const emailError = this.validateEmail(formData.email);
                     if (emailError) errors.email = emailError;
+                    break;
 
+                case 2: // Password creation
                     const passwordError = this.validatePassword(formData.password);
                     if (passwordError) errors.password = passwordError;
                     break;
 
-                case 2: // Personal details
+                case 3: // Personal details
                     if (!formData.fname.trim()) errors.fname = 'First name is required';
                     if (!formData.lname.trim()) errors.lname = 'Last name is required';
                     if (!formData.gender.trim()) errors.gender = 'Gender is required';
                     if (!formData.dob.trim()) errors.dob = 'Date of birth is required';
                     break;
 
-                case 3: // Address
+                case 4: // Address
                     if (!formData.home_address1.trim()) errors.home_address1 = 'Address is required';
                     if (!formData.home_district.trim()) errors.home_district = 'District is required';
                     if (!formData.home_state.trim()) errors.home_state = 'State is required';
                     if (!formData.home_pin_code || formData.home_pin_code === 0) errors.home_pin_code = 'PIN code is required';
                     break;
 
-                case 4: // Financial details
+                case 5: // Financial details
                     const panError = this.validatePAN(formData.pan);
                     if (panError) errors.pan = panError;
 
@@ -109,7 +119,7 @@ export class FormValidator {
                     if (!formData.beneficiary_name.trim()) errors.beneficiary_name = 'Beneficiary name is required';
                     break;
 
-                case 5: // Agent configuration
+                case 6: // Agent configuration
                     if (!formData.fos_or_dsa.trim()) errors.fos_or_dsa = 'FOS or DSA is required';
                     if (!formData.contract_or_commission.trim()) errors.contract_or_commission = 'Contract or Commission is required';
                     break;

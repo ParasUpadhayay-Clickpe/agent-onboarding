@@ -7,6 +7,7 @@ import { AgentData, CreateAgentRequest } from '../api/agents/route';
 import { FormValidator, ValidationErrors } from '../utils/formValidator';
 import { AgentService } from '../services/agentService';
 import EmailOTP from './EmailOTP';
+import PasswordCreation from './PasswordCreation';
 import PersonalDetails from './PersonalDetails';
 import AddressDetails from './AddressDetails';
 import FinancialDetails from './FinancialDetails';
@@ -49,6 +50,7 @@ export default function AgentForm() {
     parent_agent_id: '',
     password: '',
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Get referred_by from URL parameter
   useEffect(() => {
@@ -95,11 +97,13 @@ export default function AgentForm() {
       switch (currentStep) {
         case 1: // Email verification - small
           return 'max-w-md';
-        case 2: // Personal details - medium
+        case 2: // Password creation - small
+          return 'max-w-md';
+        case 3: // Personal details - medium
           return 'max-w-2xl';
-        case 3: // Agent config - small
+        case 4: // Agent config - small
           return 'max-w-lg';
-        case 4: // Review - wide
+        case 5: // Review - wide
           return 'max-w-4xl';
         default:
           return 'max-w-2xl';
@@ -109,15 +113,17 @@ export default function AgentForm() {
       switch (currentStep) {
         case 1: // Email verification - small
           return 'max-w-md';
-        case 2: // Personal details - medium
+        case 2: // Password creation - small
+          return 'max-w-md';
+        case 3: // Personal details - medium
           return 'max-w-2xl';
-        case 3: // Address - wide
+        case 4: // Address - wide
           return 'max-w-4xl';
-        case 4: // Financial - medium
+        case 5: // Financial - medium
           return 'max-w-2xl';
-        case 5: // Agent config - small
+        case 6: // Agent config - small
           return 'max-w-lg';
-        case 6: // Review - wide
+        case 7: // Review - wide
           return 'max-w-4xl';
         default:
           return 'max-w-3xl';
@@ -164,6 +170,15 @@ export default function AgentForm() {
 
   const validateStep = (step: number): boolean => {
     const newErrors = FormValidator.validateStep(step, formData, isReferred);
+
+    // Add confirmPassword validation for step 2 (password creation)
+    if (step === 2) {
+      const confirmPasswordError = FormValidator.validateConfirmPassword(formData.password, confirmPassword);
+      if (confirmPasswordError) {
+        newErrors.confirmPassword = confirmPasswordError;
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -175,9 +190,9 @@ export default function AgentForm() {
         return;
       }
       if (isReferred) {
-        setCurrentStep(prev => Math.min(prev + 1, 4));
+        setCurrentStep(prev => Math.min(prev + 1, 5));
       } else {
-        setCurrentStep(prev => Math.min(prev + 1, 6));
+        setCurrentStep(prev => Math.min(prev + 1, 7));
       }
     }
   };
@@ -272,6 +287,7 @@ export default function AgentForm() {
           });
           setCurrentStep(1);
           setEmailOtpVerified(false);
+          setConfirmPassword('');
         }, 3000);
       } else {
         setSubmitMessage(`Error: ${createResult.message}`);
@@ -291,16 +307,25 @@ export default function AgentForm() {
           return (
             <EmailOTP
               email={formData.email}
-              password={formData.password}
               userName={formData.fname && formData.lname ? `${formData.fname} ${formData.lname}` : 'User'}
               onEmailChange={(email) => handleInputChange({ target: { name: 'email', value: email } } as any)}
-              onPasswordChange={(password) => handleInputChange({ target: { name: 'password', value: password } } as any)}
               onVerificationComplete={() => setEmailOtpVerified(true)}
               errors={errors}
             />
           );
 
-        case 2: // Personal details
+        case 2: // Password creation
+          return (
+            <PasswordCreation
+              password={formData.password}
+              confirmPassword={confirmPassword}
+              onPasswordChange={(password) => handleInputChange({ target: { name: 'password', value: password } } as any)}
+              onConfirmPasswordChange={setConfirmPassword}
+              errors={errors}
+            />
+          );
+
+        case 3: // Personal details
           return (
             <PersonalDetails
               formData={formData}
@@ -309,7 +334,7 @@ export default function AgentForm() {
             />
           );
 
-        case 3: // Agent configuration
+        case 4: // Agent configuration
           return (
             <AgentConfiguration
               formData={formData}
@@ -318,7 +343,7 @@ export default function AgentForm() {
             />
           );
 
-        case 4: // Review
+        case 5: // Review
           return (
             <ReviewStep
               formData={formData}
@@ -336,16 +361,25 @@ export default function AgentForm() {
           return (
             <EmailOTP
               email={formData.email}
-              password={formData.password}
               userName={formData.fname && formData.lname ? `${formData.fname} ${formData.lname}` : 'User'}
               onEmailChange={(email) => handleInputChange({ target: { name: 'email', value: email } } as any)}
-              onPasswordChange={(password) => handleInputChange({ target: { name: 'password', value: password } } as any)}
               onVerificationComplete={() => setEmailOtpVerified(true)}
               errors={errors}
             />
           );
 
-        case 2: // Personal details
+        case 2: // Password creation
+          return (
+            <PasswordCreation
+              password={formData.password}
+              confirmPassword={confirmPassword}
+              onPasswordChange={(password) => handleInputChange({ target: { name: 'password', value: password } } as any)}
+              onConfirmPasswordChange={setConfirmPassword}
+              errors={errors}
+            />
+          );
+
+        case 3: // Personal details
           return (
             <PersonalDetails
               formData={formData}
@@ -354,7 +388,7 @@ export default function AgentForm() {
             />
           );
 
-        case 3: // Address
+        case 4: // Address
           return (
             <AddressDetails
               formData={formData}
@@ -363,7 +397,7 @@ export default function AgentForm() {
             />
           );
 
-        case 4: // Financial details
+        case 5: // Financial details
           return (
             <FinancialDetails
               formData={formData}
@@ -373,7 +407,7 @@ export default function AgentForm() {
             />
           );
 
-        case 5: // Agent configuration
+        case 6: // Agent configuration
           return (
             <AgentConfiguration
               formData={formData}
@@ -382,7 +416,7 @@ export default function AgentForm() {
             />
           );
 
-        case 6: // Review
+        case 7: // Review
           return (
             <ReviewStep
               formData={formData}

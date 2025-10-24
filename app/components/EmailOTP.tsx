@@ -1,24 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VerificationService } from '../services/verificationService';
 
 interface EmailOTPProps {
     email: string;
-    password: string;
     userName?: string; // Add userName prop
     onEmailChange: (email: string) => void;
-    onPasswordChange: (password: string) => void;
     onVerificationComplete: () => void;
-    errors: { email?: string; password?: string };
+    errors: { email?: string };
 }
 
 export default function EmailOTP({
     email,
-    password,
     userName = 'User',
     onEmailChange,
-    onPasswordChange,
     onVerificationComplete,
     errors
 }: EmailOTPProps) {
@@ -27,18 +23,45 @@ export default function EmailOTP({
     const [emailOtpCode, setEmailOtpCode] = useState('');
     const [emailOtpLoading, setEmailOtpLoading] = useState(false);
     const [verifyEmailOtpLoading, setVerifyEmailOtpLoading] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('info');
+
+    // Auto-dismiss toast after 5 seconds
+    useEffect(() => {
+        if (toastMessage) {
+            const timer = setTimeout(() => {
+                setToastMessage('');
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [toastMessage]);
 
     const sendEmailOTP = async () => {
         if (!email.trim()) return;
 
         setEmailOtpLoading(true);
+        setToastMessage(''); // Clear previous toast
         try {
             const result = await VerificationService.sendEmailOTP(email, userName);
             if (result.success) {
                 setEmailOtpSent(true);
+                setToastMessage('OTP sent successfully!');
+                setToastType('success');
+            } else {
+                // Handle specific error cases
+                if (result.message && result.message.includes('already verified')) {
+                    setToastMessage(result.message); // Show the exact message from API
+                    setToastType('info');
+                    // Don't auto-progress, just show the message
+                } else {
+                    setToastMessage(result.message || 'Failed to send OTP');
+                    setToastType('error');
+                }
             }
         } catch (error) {
             console.error('Error sending email OTP:', error);
+            setToastMessage('Failed to send OTP. Please try again.');
+            setToastType('error');
         } finally {
             setEmailOtpLoading(false);
         }
@@ -102,30 +125,6 @@ export default function EmailOTP({
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
                             {errors.email}
-                        </p>
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-200">
-                        Password <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={password}
-                        onChange={(e) => onPasswordChange(e.target.value)}
-                        className={`w-full px-4 py-3 bg-gray-800 border-2 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ${errors.password ? 'border-red-500 bg-red-900/20' : 'border-gray-600 hover:border-gray-500 focus:border-blue-500'
-                            }`}
-                        placeholder="Enter password (min 6 characters)"
-                    />
-                    {errors.password && (
-                        <p className="mt-1 text-sm text-red-400 flex items-center justify-center">
-                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            {errors.password}
                         </p>
                     )}
                 </div>
@@ -203,6 +202,41 @@ export default function EmailOTP({
                     </div>
                 )}
             </div>
+
+            {/* Toast Message */}
+            {toastMessage && (
+                <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 ${toastType === 'success' ? 'bg-green-600 text-white' :
+                    toastType === 'error' ? 'bg-red-600 text-white' :
+                        'bg-blue-600 text-white'
+                    }`}>
+                    <div className="flex items-center space-x-2">
+                        {toastType === 'success' && (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                        {toastType === 'error' && (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                        {toastType === 'info' && (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                        <span className="text-sm font-medium">{toastMessage}</span>
+                    </div>
+                    <button
+                        onClick={() => setToastMessage('')}
+                        className="absolute top-2 right-2 text-white hover:text-gray-200"
+                    >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
