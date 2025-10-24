@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agent Onboarding Portal
 
-## Getting Started
+A modern, step-by-step Next.js application for agent onboarding with OTP verification and referral system.
 
-First, run the development server:
+## Features
 
+- **Step-by-Step Process**: 6-step guided onboarding experience
+- **OTP Verification**: Mobile number verification with OTP
+- **Referral System**: Automatic referral detection from URL parameters
+- **Auto-Generated Agent ID**: System generates unique agent IDs
+- **Modern UI**: Beautiful gradient design with animations
+- **Form Validation**: Real-time validation with error messages
+- **Responsive Design**: Works perfectly on all devices
+- **Progress Tracking**: Visual progress indicator
+- **API Integration**: Seamless API gateway integration
+
+## Setup
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up environment variables:
+Create a `.env.local` file in the root directory and add:
+```
+NEXT_PUBLIC_API_URL=https://your-api-gateway-url
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## URL Parameters
 
-To learn more about Next.js, take a look at the following resources:
+The application supports referral links with the following format:
+```
+https://agent.clickpe.ai?referredby=AGENT123
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The `referredby` parameter will be automatically captured and used as the referral agent ID.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Onboarding Steps
 
-## Deploy on Vercel
+1. **Mobile Verification**: Enter mobile number and verify with OTP
+2. **Personal Details**: Basic personal information
+3. **Address Information**: Residential address details
+4. **Financial Details**: Banking and PAN information
+5. **Agent Configuration**: FOS/DSA and contract type selection
+6. **Review & Submit**: Final review and submission
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API Integration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application makes a POST request to `${NEXT_PUBLIC_API_URL}/create-agent` with the following payload structure:
+
+```json
+{
+  "body": {
+    "agent_id": "AGENT_1703123456789_ABC12",
+    "mob_num": "9876543211",
+    "fname": "Jane",
+    "lname": "Smith",
+    "email": "jane.smith@example.com",
+    "gender": "Female",
+    "dob": "1985-05-15",
+    "home_address1": "456 Oak Avenue",
+    "home_district": "Delhi",
+    "home_state": "Delhi",
+    "home_pin_code": "110001",
+    "pan": "FGHIJ5678K",
+    "ifsc": "HDFC0001234",
+    "acc_num": "9876543210",
+    "beneficiary_name": "Jane Smith",
+    "fos_or_dsa": "DSA",
+    "contract_or_commission": "Contract",
+    "referred_by": "AGENT123"
+  }
+}
+```
+
+## Key Features
+
+### OTP Verification
+- Mobile number validation
+- OTP sending simulation
+- OTP verification process
+- Visual feedback for verification status
+
+### Referral System
+- Automatic detection from URL parameters
+- Visual indication of referral agent
+- Self-onboarding when no referral is provided
+
+### Auto-Generated Agent ID
+- Unique agent ID generation using timestamp and random string
+- Format: `AGENT_{timestamp}_{randomString}`
+
+### Form Validation
+- Step-by-step validation
+- Real-time error clearing
+- Email format validation
+- Mobile number format (10-digit Indian numbers)
+- PAN number format validation
+- Required field validation
+
+## Technologies Used
+
+- Next.js 16 with App Router
+- React 19 with Suspense
+- TypeScript
+- Tailwind CSS
+- useSearchParams for URL parameter handling
+- Modern gradient design and animations
